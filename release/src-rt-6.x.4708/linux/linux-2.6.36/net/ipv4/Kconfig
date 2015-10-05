@@ -561,7 +561,7 @@ config TCP_CONG_VENO
 config TCP_CONG_YEAH
 	tristate "YeAH TCP"
 	depends on EXPERIMENTAL
-	select TCP_CONG_VEGAS
+	#select TCP_CONG_VEGAS
 	default n
 	---help---
 	YeAH-TCP is a sender-side high-speed enabled TCP congestion control
@@ -602,6 +602,9 @@ choice
 	config DEFAULT_HTCP
 		bool "Htcp" if TCP_CONG_HTCP=y
 
+        config DEFAULT_HSTCP
+                bool "HSTCP" if TCP_CONG_HSTCP=y
+
 	config DEFAULT_HYBLA
 		bool "Hybla" if TCP_CONG_HYBLA=y
 
@@ -617,6 +620,9 @@ choice
 	config DEFAULT_RENO
 		bool "Reno"
 
+	config DEFAULT_YEAH
+		bool "Yeah" if TCP_CONG_YEAH=y
+
 endchoice
 
 endif
@@ -631,11 +637,13 @@ config DEFAULT_TCP_CONG
 	default "bic" if DEFAULT_BIC
 	default "cubic" if DEFAULT_CUBIC
 	default "htcp" if DEFAULT_HTCP
+	default "hstcp" if DEFAULT_HSTCP
 	default "hybla" if DEFAULT_HYBLA
 	default "vegas" if DEFAULT_VEGAS
 	default "westwood" if DEFAULT_WESTWOOD
 	default "veno" if DEFAULT_VENO
 	default "reno" if DEFAULT_RENO
+	default "yeah" if DEFAULT_YEAH
 	default "cubic"
 
 config TCP_MD5SIG

@@ -5311,7 +5311,7 @@ fa_mode_init()
 		case CTF_FA_NORMAL:
 			break;
 		default:
-			fa_mode = CTF_FA_DISABLED;
+			fa_mode = CTF_FA_NORMAL;
 			break;
 	}
 }
