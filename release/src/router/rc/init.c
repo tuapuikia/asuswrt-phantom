@@ -913,6 +913,8 @@ misc_defaults(int restore_defaults)
 	nvram_set("freeze_duck", "0");
 #endif
 	nvram_unset("ateCommand_flag");
+
+	nvram_set("ntp_ready", "0");
 }
 
 /* ASUS use erase nvram to reset default only */
@@ -5140,6 +5142,9 @@ int init_nvram(void)
 
 #ifdef RTCONFIG_IGD2
 	add_rc_support("igd2");
+#endif
+#ifdef RTCONFIG_DNSSEC
+        add_rc_support("dnssec");
 #endif
 #ifdef RTCONFIG_WPSMULTIBAND
 	add_rc_support("wps_multiband");
