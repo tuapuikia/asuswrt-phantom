@@ -200,6 +200,37 @@ ciphersarray = [
 		["RC5-OF"]
 ];
 
+var digestsarray = [
+		["MD5"],
+		["RSA-MD5"],
+		["SHA"],
+		["RSA-SHA"],
+		["SHA1"],
+		["RSA-SHA1"],
+		["DSA-SHA"],
+		["DSA-SHA1-old"],
+		["MDC2"],
+		["RSA-MDC2"],
+		["DSA-SHA1"],
+		["RSA-SHA1-2"],
+		["DSA"],
+		["RIPEMD160"],
+		["RSA-RIPEMD160"],
+		["MD4"],
+		["RSA-MD4"],
+		["ecdsa-with-SHA1"],
+		["RSA-SHA256"],
+		["RSA-SHA384"],
+		["RSA-SHA512"],
+		["RSA-SHA224"],
+		["SHA256"],
+		["SHA384"],
+		["SHA512"],
+		["SHA224"],
+		["whirlpool"]
+];
+
+
 var clientlist_array = '<% nvram_get("vpn_client_clientlist"); %>';
 
 function initial()
@@ -211,8 +242,14 @@ function initial()
 	// Cipher list
 	free_options(document.form.vpn_client_cipher);
 	currentcipher = "<% nvram_get("vpn_client_cipher"); %>";
-	add_option(document.form.vpn_client_cipher, "Default","default",(currentcipher == "Default"));
+	add_option(document.form.vpn_client_cipher, "Default","default",(currentcipher == "default"));
 	add_option(document.form.vpn_client_cipher, "None","none",(currentcipher == "none"));
+
+	// Digest list
+	free_options(document.form.vpn_client_digest);
+	currentdigest = "<% nvram_get("vpn_client_digest"); %>";
+	add_option(document.form.vpn_client_digest, "Default","default",(currentdigest == "default"));
+	add_option(document.form.vpn_client_digest, "None","none",(currentdigest == "none"));
 
 	// Extract the type out of the interface name 
 	// (imported ovpn can result in this being tun3, for example)
@@ -224,6 +261,12 @@ function initial()
 		add_option(document.form.vpn_client_cipher,
 			ciphersarray[i][0], ciphersarray[i][0],
 			(currentcipher == ciphersarray[i][0]));
+	}
+
+	for(var i = 0; i < digestsarray.length; i++){
+		add_option(document.form.vpn_client_digest,
+			digestsarray[i][0], digestsarray[i][0],
+			(currentdigest == digestsarray[i][0]));
 	}
 
 	// Set these based on a compound field
@@ -1084,6 +1127,15 @@ function getConnStatus() {
 			   			</td>
 					</tr>
 
+					<tr>
+						<th>Auth digest</th>
+						<td>
+							<select name="vpn_client_digest" class="input_option">
+								<option value="<% nvram_get("vpn_client_digest"); %>" selected><% nvram_get("vpn_client_digest"); %></option>
+							</select>
+						</td>
+					</tr>
+
 					<tr id="client_bridge">
 						<th>Server is on the same subnet</th>
 						<td>
@@ -1126,6 +1178,13 @@ function getConnStatus() {
 							<td colspan="2">Advanced Settings</td>
 						</tr>
 					</thead>
+
+					<tr>
+						<th>Global Log verbosity<br><i>(0-9, default=3)</i></th>
+						<td>
+							<input type="text" maxlength="1" class="input_6_table" name="vpn_loglevel" onKeyPress="return validator.isNumber(this,event);" onblur="validate_number_range(this, 0, 9)" value="<% nvram_get("vpn_loglevel"); %>">
+						</td>
+					</tr>
 
 					<tr>
 						<th><#vpn_openvpn_PollInterval#><br><i>( <#zero_disable#> )</i></th>

@@ -110,8 +110,39 @@ var ciphersarray = [
 		["SEED-CBC"]
 ];
 
+var digestsarray = [
+		["MD5"],
+		["RSA-MD5"],
+		["SHA"],
+		["RSA-SHA"],
+		["SHA1"],
+		["RSA-SHA1"],
+		["DSA-SHA"],
+		["DSA-SHA1-old"],
+		["MDC2"],
+		["RSA-MDC2"],
+		["DSA-SHA1"],
+		["RSA-SHA1-2"],
+		["DSA"],
+		["RIPEMD160"],
+		["RSA-RIPEMD160"],
+		["MD4"],
+		["RSA-MD4"],
+		["ecdsa-with-SHA1"],
+		["RSA-SHA256"],
+		["RSA-SHA384"],
+		["RSA-SHA512"],
+		["RSA-SHA224"],
+		["SHA256"],
+		["SHA384"],
+		["SHA512"],
+		["SHA224"],
+		["whirlpool"]
+];
+
 function initial(){
 	var currentcipher = "<% nvram_get("vpn_server_cipher"); %>";
+	var currentdigest = "<% nvram_get("vpn_server_digest"); %>";
 
 	show_menu();		
 	addOnlineHelp(document.getElementById("faq"), ["ASUSWRT", "VPN"]);
@@ -139,6 +170,14 @@ function initial(){
 	for(var i = 0; i < ciphersarray.length; i += 1){
 		add_option(document.form.vpn_server_cipher, ciphersarray[i][0], ciphersarray[i][0], (currentcipher == ciphersarray[i][0]));
 	}
+
+	//generate select option of auth digests list
+	add_option(document.form.vpn_server_digest, "Default","default",(currentdigest == "default"));
+	add_option(document.form.vpn_server_digest, "None","none",(currentdigest == "none"));
+	for(var i = 0; i < digestsarray.length; i += 1){
+		add_option(document.form.vpn_server_digest, digestsarray[i][0], digestsarray[i][0], (currentdigest == digestsarray[i][0]));
+	}
+
 	// We don't use the global switch, so set it to current instance state instead
 	document.form.VPNServer_enable.value = vpn_server_enable;
 	// Set this based on a compound field
@@ -1351,7 +1390,13 @@ function update_vpn_client_state() {
 													</select>
 													<span style="color:#FC0">(TLS-Auth)</span>
 												</td>
-											</tr>			
+											</tr>
+                                                                                        <tr>
+                                                                                                <th>Auth digest</th>
+                                                                                                <td>
+                                                                                                        <select name="vpn_server_digest" class="input_option"></select>
+                                                                                                </td>
+                                                                                        </tr>
 											<tr id="server_snnm">
 												<th><#vpn_openvpn_SubnetMsak#></th>
 												<td>
@@ -1437,6 +1482,13 @@ function update_vpn_client_state() {
 												<td>
 													<input type="text" maxlength="5" class="input_6_table" name="vpn_server_reneg" onblur="validator.range(this, -1, 2147483647)" value="<% nvram_get("vpn_server_reneg"); %>" autocorrect="off" autocapitalize="off"> <#Second#>
 													<span style="color:#FC0">(<#Setting_factorydefault_value#> : -1)</span>
+												</td>
+											</tr>
+											<tr>
+												<th>Global Log verbosity</th>
+												<td>
+													<input type="text" maxlength="1" class="input_6_table"name="vpn_loglevel" onKeyPress="return validator.isNumber(this,event);"onblur="validate_number_range(this, 0, 9)" value="<% nvram_get("vpn_loglevel"); %>">
+													<span style="color:#FC0">Between 0 and 9. Default: 3</span>
 												</td>
 											</tr>
 											<tr id="server_ccd">
