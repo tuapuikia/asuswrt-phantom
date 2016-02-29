@@ -20,15 +20,19 @@ create_client_list(){
 		then
 			continue
 		fi
-		TARGET_ROUTE=$(echo $ENTRY | cut -d ">" -f 4)
-		if [ "$TARGET_ROUTE" = "VPN" ]
+
+		VPN_IP=$(echo $ENTRY | cut -d ">" -f 2)
+		if [ "$VPN_IP" != "0.0.0.0" ]
 		then
-			VPN_IP=$(echo $ENTRY | cut -d ">" -f 2)
-			if [ "$VPN_IP" != "0.0.0.0" ]
+			TARGET_ROUTE=$(echo $ENTRY | cut -d ">" -f 4)
+			if [ "$TARGET_ROUTE" = "VPN" ]
 			then
 				echo iptables -t nat -A DNSVPN$instance -s $VPN_IP -j DNAT --to-destination $server >> $dnsscript
+				logger -t "openvpn-updown" "Forcing $VPN_IP to use DNS server $server"
+			else
+				echo iptables -t nat -I DNSVPN$instance -s $VPN_IP -j RETURN >> $dnsscript
+				logger -t "openvpn-updown" "Excluding $VPN_IP from forced DNS routing"
 			fi
-			logger -t "openvpn-updown" "Forcing $VPN_IP to use DNS server $server"
 		fi
 	done
 	IFS=$OLDIFS
@@ -41,7 +45,7 @@ if [ -f $resolvfile ]; then rm $resolvfile; fileexists=1; fi
 
 if [ $script_type == 'up' ]
 then
-	echo iptables -t nat -N DNSVPN$instance > $dnsscript
+	echo iptables -t nat -N DNSVPN$instance >> $dnsscript
 
 	if [ $instance != 0 -a $(nvram get vpn_client$(echo $instance)_rgw) == 2 -a $(nvram get vpn_client$(echo $instance)_adns) == 3 ]
 	then
@@ -50,9 +54,9 @@ then
 		setdns=-1
 	fi
 
-	for optionname in $(set | grep "^foreign_option_" | sed "s/^\(.*\)=.*$/\1/g")
+	for optionname in `set | grep "^foreign_option_" | sed "s/^\(.*\)=.*$/\1/g"`
 	do
-		option=$(eval "echo \\$$optionname")
+		option=`eval "echo \\$$optionname"`
 		if echo $option | grep "dhcp-option WINS "; then echo $option | sed "s/ WINS /=44,/" >> $conffile; fi
 		if echo $option | grep "dhcp-option DNS"
 		then
