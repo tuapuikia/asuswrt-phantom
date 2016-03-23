@@ -290,9 +290,9 @@ int pppstatus(void)
 
 	if(fp) fclose(fp);
 
-	if(strstr(buf, "No response from ISP.")) return WAN_STOPPED_REASON_PPP_NO_ACTIVITY;
-	else if(strstr(buf, "Failed to authenticate ourselves to peer")) return WAN_STOPPED_REASON_PPP_AUTH_FAIL;
+	if(strstr(buf, "Failed to authenticate ourselves to peer")) return WAN_STOPPED_REASON_PPP_AUTH_FAIL;
 	else if(strstr(buf, "Terminating connection due to lack of activity")) return WAN_STOPPED_REASON_PPP_LACK_ACTIVITY;
+	else if(strstr(buf, "No response from ISP.")) return WAN_STOPPED_REASON_PPP_NO_ACTIVITY;
 	else return WAN_STOPPED_REASON_NONE;
 }
 
@@ -845,14 +845,14 @@ void setup_conntrack(void)
 
 void setup_pt_conntrack(void)
 {
-	if (!nvram_match("fw_pt_rtsp", "0")) {
+	if (nvram_match("fw_pt_rtsp", "1")) {
 		ct_modprobe("rtsp", "ports=554,8554");
 	}
 	else {
 		ct_modprobe_r("rtsp");
 	}
 
-	if (!nvram_match("fw_pt_h323", "0")) {
+	if (nvram_match("fw_pt_h323", "1")) {
 		ct_modprobe("h323");
 	}
 	else {
@@ -860,7 +860,7 @@ void setup_pt_conntrack(void)
 	}
 
 #ifdef LINUX26
-	if (!nvram_match("fw_pt_sip", "0")) {
+	if (nvram_match("fw_pt_sip", "1")) {
 		ct_modprobe("sip");
 	}
 	else {

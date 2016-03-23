@@ -710,7 +710,7 @@ function done_validating(action){
 					</tr>
 
 					<tr id="rstats_stime_tr">
-						<th>Save frequency:</th>
+						<th>Save frequency</th>
 						<td>
 							<select name="rstats_stime" class="input_option" >
 								<option value="1" <% nvram_match("rstats_stime", "1","selected"); %>>Every 1 hour</option>
@@ -947,10 +947,10 @@ function done_validating(action){
 						</td>
 					</tr>
 					<tr>
-						<th>DLNA: Run a full media rescan at start (default: Yes)</th>
+						<th>DLNA: Rebuild entire database at start (default: No)</th>
 						<td>
-							<input type="radio" name="dms_rescan" class="input" value="1" <% nvram_match_x("", "dms_rescan", "1", "checked"); %>><#checkbox_Yes#>
-							<input type="radio" name="dms_rescan" class="input" value="0" <% nvram_match_x("", "dms_rescan", "0", "checked"); %>><#checkbox_No#>
+							<input type="radio" name="dms_rebuild" class="input" value="1" <% nvram_match_x("", "dms_rebuild", "1", "checked"); %>><#checkbox_Yes#>
+							<input type="radio" name="dms_rebuild" class="input" value="0" <% nvram_match_x("", "dms_rebuild", "0", "checked"); %>><#checkbox_No#>
 						</td>
 					</tr>
 					<tr>
