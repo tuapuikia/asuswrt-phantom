@@ -6560,6 +6560,14 @@ check_ddr_done:
  			start_vpnserver(openvpn_unit);
  		}
  	}
+	else if (strncmp(script, "clearvpnserver", 14) == 0)
+	{
+		reset_vpn_settings(1, nvram_get_int("vpn_server_unit"));
+	}
+        else if (strncmp(script, "clearvpnclient", 14) == 0)
+	{
+                reset_vpn_settings(2, nvram_get_int("vpn_client_unit"));
+        }
 #endif
 #ifdef RTCONFIG_YANDEXDNS
 	else if (strcmp(script, "yadns") == 0)
