@@ -3194,7 +3194,8 @@ function ajaxCallJsonp(target){
 }
 
 function oui_query_full_vendor(mac){
-	if ((typeof clientList[mac] != "undefined") && (clientList[mac].vendor != "")) {
+//	if ((typeof clientList[mac] != "undefined") && (clientList[mac].vendor != "")) {
+	if (0) {
 		setTimeout(function(){
 			var overlibStrTmp = retOverLibStr(clientList[mac]);
 			overlibStrTmp += "<p><span>.....................................</span></p><p style='margin-top:5px'><#Manufacturer#> :</p>";
@@ -3224,7 +3225,7 @@ function oui_query_web(mac){
 					if(response.search(queryStr) != -1) {
 						var retData = response.split("pre")[1].split("(base 16)")[1].replace("PROVINCE OF CHINA", "R.O.C").split("</");
 						overlibStrTmp += "<p><span>.....................................</span></p><p style='margin-top:5px'><#Manufacturer#> :</p>";
-						overlibStrTmp += retData[0];
+						overlibStrTmp += retData[0].slice(0,retData[0].indexOf("\n"))
 					}
 				}
                                 return overlib(overlibStrTmp);
