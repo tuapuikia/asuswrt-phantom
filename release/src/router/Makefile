@@ -1742,7 +1742,7 @@ dnsmasq-install:
 nettle/stamp-h1:
 	@cd nettle && \
 	CPPFLAGS="-I$(TOP)/gmp" \
-	CFLAGS="-Os -Wall $(EXTRACFLAGS) -fPIC -ffunction-sections -fdata-sections" \
+	CFLAGS="-O2 -Wall $(EXTRACFLAGS) -fPIC -ffunction-sections -fdata-sections" \
 	LDFLAGS="-L$(TOP)/gmp/.libs -ffunction-sections -fdata-sections -Wl,--gc-sections -fPIC" \
 	$(CONFIGURE) prefix=$(TOP)/nettle --enable-mini-gmp --disable-documentation --disable-shared
 	@touch nettle/stamp-h1
@@ -4198,7 +4198,8 @@ nano/Makefile:
 		CFLAGS="$(EXTRACFLAGS) -Os -I$(TOP)/ncurses/include" \
 		LDFLAGS="$(LDFLAGS) -L$(TOP)/ncurses/lib" \
 		ac_cv_lib_ncursesw_get_wch=no \
-		--disable-nls --enable-tiny --enable-wrapping --disable-glibtest \
+		--disable-nls $(if $(RTCONFIG_BCMARM),,--enable-tiny) \
+		--disable-speller --disable-extra --disable-tabcomp --enable-wrapping --disable-glibtest \
 		--disable-libmagic --disable-utf8
 
 nano-clean:
