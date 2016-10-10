@@ -1017,12 +1017,15 @@ ej_load_clientlist_char_to_ascii(int eid, webs_t wp, int argc, char_t **argv)
 		str = (char *)malloc(sizeof(char)*size_ncl+1);
 		if (fread(str, 1, size_ncl, fp) != size_ncl) {
 			csprintf("Read nmp_client_list FILE ERR\n");
+			fclose(fp);
+			free(str);
 			return 0;
 		}
-	}
-	else
+		fclose(fp);
+	} else {
+		fclose(fp);
 		return 0;
-	fclose(fp);
+	}
 	str[size_ncl] = '\0';
 
 	/* each char expands to %XX at max */
@@ -1031,6 +1034,7 @@ ej_load_clientlist_char_to_ascii(int eid, webs_t wp, int argc, char_t **argv)
 		buf = (char *)malloc(ret);
 		if (buf == NULL) {
 			csprintf("No memory.\n");
+			free(str);
 			return 0;
 		}
 	}
@@ -1039,7 +1043,7 @@ ej_load_clientlist_char_to_ascii(int eid, webs_t wp, int argc, char_t **argv)
 
 	if (buf != tmp)
 		free(buf);
-
+	free(str);
 	return ret;
 }
 
@@ -4792,7 +4796,7 @@ ej_IP_dhcpLeaseInfo(int eid, webs_t wp, int argc, char_t **argv)
 #define DHCP_LEASE_FILE         "/var/lib/misc/dnsmasq.leases"
 #define IPV6_CLIENT_NEIGH	"/tmp/ipv6_neigh"
 #define IPV6_CLIENT_INFO	"/tmp/ipv6_client_info"
-#define	IPV6_CLIENT_LIST	"/tmp/ipv6_client_list"
+//#define	IPV6_CLIENT_LIST	"/tmp/ipv6_client_list"	// Moved to httpd.h
 #define	MAC			1
 #define	HOSTNAME		2
 #define	IPV6_ADDRESS		3
@@ -5555,7 +5559,7 @@ static int ej_get_client_detail_info(int eid, webs_t wp, int argc, char_t **argv
 	char output_buf[128], dev_name[32];
 	P_CLIENT_DETAIL_INFO_TABLE p_client_info_tab;
 	int lock;
-	char devname[LINE_SIZE], character;
+	char devname[32], character;
 	int j, len;
 
 	lock = file_lock("networkmap");
@@ -5580,12 +5584,12 @@ static int ej_get_client_detail_info(int eid, webs_t wp, int argc, char_t **argv
 		else
 			strlcpy(dev_name, (const char *)p_client_info_tab->device_name[i], sizeof (dev_name));
 
-		memset(output_buf, 0, 128);
-		memset(devname, 0, LINE_SIZE);
+		memset(output_buf, 0, sizeof(output_buf));
+		memset(devname, 0, sizeof(devname));
 
 	    if(p_client_info_tab->exist[i]==1) {
 		len = strlen(dev_name);
-		for (j=0; (j < len) && (j < LINE_SIZE-1); j++) {
+		for (j=0; (j < len) && (j < (sizeof(devname) - 1)); j++) {
 			character = dev_name[j];
 			if ((isalnum(character)) || (character == ' ') || (character == '-') || (character == '_'))
 				devname[j] = character;
@@ -9908,6 +9912,8 @@ login_cgi(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg,
 	char *next_page=NULL;
 	int fromapp_flag = 0;
 	char *cloud_file=NULL;
+	char filename[128];
+	memset(filename, 0, 128);
 
 	fromapp_flag = check_user_agent(user_agent);
 
@@ -9997,13 +10003,16 @@ login_cgi(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg,
 		websWrite(wp,"Connection: close\r\n" );
 		websWrite(wp,"\r\n" );
 		if (fromapp_flag == 0){
+
+			snprintf(filename, sizeof(filename), "/www/%s", next_page);
+
 			websWrite(wp,"<HTML><HEAD>\n" );
 			if(!strcmp(nvram_default_get("http_passwd"), nvram_safe_get("http_passwd")) && !nvram_match("ATEMODE", "1"))
 				websWrite(wp, T("<meta http-equiv=\"refresh\" content=\"0; url=Main_Password.asp\">\r\n"));
-			else if(next_page == NULL || strcmp(next_page, "") == 0 || strstr(next_page, "http") != NULL)
+			else if(next_page == NULL || strcmp(next_page, "") == 0 || strstr(next_page, "http") != NULL || strstr(next_page, "//") != NULL || (!check_if_file_exist(filename)))
 				websWrite(wp, T("<meta http-equiv=\"refresh\" content=\"0; url=index.asp\">\r\n"));
 			else{
-				if(strncmp(next_page, "cloud_sync.asp", strlen(next_page))==0){
+				if(strncmp(next_page, "cloud_sync.asp", 14)==0){
 					cloud_file = websGetVar(wp, "cloud_file", "");
 					websWrite(wp, T("<meta http-equiv=\"refresh\" content=\"0; url=%s?flag=%s\">\r\n"), next_page, cloud_file);
 				}else
@@ -10394,6 +10403,10 @@ struct mime_referer mime_referers[] = {
 	{ "jffsupload.cgi", CHECK_REFERER},
 	{ "findasus.cgi", CHECK_REFERER},
 	{ "ftpServerTree.cgi", CHECK_REFERER},
+	{ "aidisk/create_account.asp", CHECK_REFERER},
+#if defined(RTCONFIG_WIRELESSREPEATER) || defined(RTCONFIG_CONCURRENTREPEATER)
+	{ "apscan.asp", CHECK_REFERER},
+#endif
 #ifdef RTCONFIG_QCA_PLC_UTILS
 	{ "plc.cgi", CHECK_REFERER},
 #endif
@@ -14605,7 +14618,7 @@ ej_get_clientlist(int eid, webs_t wp, int argc, char **argv){
 	char ipaddr[16];
 	P_CLIENT_DETAIL_INFO_TABLE p_client_info_tab;
 	int lock;
-	char devname[LINE_SIZE], character;
+	char devname[32], character;
 	int j, len;
 	int first_mac=1, first_info=1;
 
@@ -14631,7 +14644,7 @@ ej_get_clientlist(int eid, webs_t wp, int argc, char **argv){
 		memset(output_buf, 0, 2048);
 		memset(ipaddr, 0, 16);
 		memset(mac_buf, 0, 32);
-		memset(devname, 0, LINE_SIZE);
+		memset(devname, 0, 32);
 
 		if(strcmp((const char *)p_client_info_tab->user_define[i], ""))
 			strlcpy(dev_name, (const char *)p_client_info_tab->user_define[i], sizeof(dev_name));
@@ -14640,7 +14653,7 @@ ej_get_clientlist(int eid, webs_t wp, int argc, char **argv){
 
 	    if(p_client_info_tab->exist[i]==1) {
 		len = strlen(dev_name);
-		for (j=0; (j < len) && (j < LINE_SIZE-1); j++) {
+		for (j=0; (j < len) && (j < 32-1); j++) {
 			character = dev_name[j];
 			if ((isalnum(character)) || (character == ' ') || (character == '-') || (character == '_'))
 				devname[j] = character;
@@ -14670,7 +14683,7 @@ ej_get_clientlist(int eid, webs_t wp, int argc, char **argv){
 			websWrite(wp, ",\n");
 		}
 
-		sprintf(output_buf, "%s:{\"type\":\"%d\",\"name\":\"%s\",\"ip\":\"%s\",\"mac\":%s,\"from\":\"networkmapd\",\"macRepeat\":\"%d\",\"isGateway\":\"%s\",\"isWebServer\":\"%d\",\"isPrinter\":\"%d\",\"isITunes\":\"%d\",\"isOnline\":\"true\"}",
+		snprintf(output_buf, sizeof(output_buf), "%s:{\"type\":\"%d\",\"name\":\"%s\",\"ip\":\"%s\",\"mac\":%s,\"from\":\"networkmapd\",\"macRepeat\":\"%d\",\"isGateway\":\"%s\",\"isWebServer\":\"%d\",\"isPrinter\":\"%d\",\"isITunes\":\"%d\",\"isOnline\":\"true\"}",
 		mac_buf,
 		p_client_info_tab->type[i],
 		devname,

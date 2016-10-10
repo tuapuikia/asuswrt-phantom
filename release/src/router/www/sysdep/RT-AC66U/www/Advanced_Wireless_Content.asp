@@ -174,7 +174,10 @@ function initial(){
 		document.getElementById("auto_channel").style.display = "";
 		var temp = "";
 		if(smart_connect_flag_t == "1"){		//Tri-Band Smart Connect
-			temp = cur_control_channel[0] + ", " + cur_control_channel[1] + ", " + cur_control_channel[2];
+			temp = cur_control_channel[0] + ", " + cur_control_channel[1];
+			if(wl_info.band5g_2_support)
+				temp += ", " + cur_control_channel[2];
+			
 			document.getElementById("auto_channel").innerHTML = "Current Control Channel: " + temp;
 		}
 		else if(smart_connect_flag_t == "2"){		//5 GHz Smart Connect
@@ -984,7 +987,7 @@ function regen_auto_option(obj){
 			  	<tr>
 					<th><a class="hintstyle" href="javascript:void(0);" onClick="openHint(0, 7);"><#WLANConfig11b_x_PSKKey_itemname#></a></th>
 					<td>
-				  		<input name="wl_wpa_psk" maxlength="64" class="input_32_table" value="<% nvram_get("wl_wpa_psk"); %>" type="password" onBlur="switchType(this, false);" onFocus="switchType(this, true);" autocorrect="off" autocapitalize="off">
+				  		<input name="wl_wpa_psk" maxlength="64" class="input_32_table" value="<% nvram_get("wl_wpa_psk"); %>" type="password" onBlur="switchType(this, false);" onFocus="switchType(this, true);" autocomplete="new-password" autocorrect="off" autocapitalize="off">
 					</td>
 			  	</tr>
 			  		  

@@ -596,8 +596,8 @@ start_udhcpc(char *wan_ifname, int unit, pid_t *ppid)
 	char tmp[100], prefix[sizeof("wanXXXXXXXXXX_")];
 	char pid[sizeof("/var/run/udhcpcXXXXXXXXXX.pid")];
 	char clientid[sizeof("61:") + (128*2) + 1];
-#ifdef RTCONFIG_TR069
 	char vendorid[32+32+sizeof(" dslforum.org")];
+#ifdef RTCONFIG_TR069
 #ifdef RTCONFIG_TR181
 	unsigned char optbuf[sizeof(struct viopt_hdr) + 128];
 	unsigned char hwaddr[6];
@@ -684,7 +684,6 @@ start_udhcpc(char *wan_ifname, int unit, pid_t *ppid)
 
 	/* Client ID */
 	value = nvram_safe_get(strcat_r(prefix, "clientid", tmp));
-//	value = nvram_safe_get(strcat_r(prefix,"dhcpc_options",tmp));
 	if (nvram_get_int(strcat_r(prefix, "clientid_type", tmp))) {
 		if (get_duid(&duid)) {
 			/* RFC4361 implementation, use WAN number as IAID.
@@ -1271,6 +1270,7 @@ start_dhcp6c(void)
 		NULL, NULL,	/* -rdns -rdomain */
 		NULL, NULL, 	/* -rsolmaxrt -r infmaxrt */
 		NULL,		/* -v */
+		NULL,		/* -k */
 		NULL,		/* interface */
 		NULL };
 	int index = 7;
@@ -1325,6 +1325,9 @@ start_dhcp6c(void)
 
 	if (nvram_get_int("ipv6_debug"))
 		dhcp6c_argv[index++] = "-v";
+
+	if (nvram_get_int(ipv6_nvname("ipv6_dhcp6c_release")) == 0)
+		dhcp6c_argv[index++] = "-k";
 
 	dhcp6c_argv[index++] = wan_ifname;
 

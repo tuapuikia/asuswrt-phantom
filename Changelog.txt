@@ -1,20 +1,48 @@
 Asuswrt-Merlin Changelog
 ========================
 
-380.62 (xx-xxx-2016)
-   - NEW: Added nano 2.6.3 (user-friendly text editor)
+380.63 (xx-xxx-xxxx)
+   - CHANGED: Updated Tor to 0.2.8.8
+   - CHANGED: Updated OUI database.
+   - CHANGED: ipset was updated to version 6.29 on ARM models.
+              IMPORTANT: this means you will probably need to 
+              update your script to the new syntax.
+              There has been no change to MIPS models, due to their
+              older kernel.  (original code by Shibby and Victek, 
+              Asuswrt port by john9527)
+
+
+380.62_1 (29-Sept-2016)
+   - CHANGED: Updated OpenSSL to 1.0.2j
+
+
+380.62 (23-Sept-2016)
+   - NEW: Added nano 2.7.0 (user-friendly text editor)
           Documentation: https://www.nano-editor.org/dist/v2.6/nano.html
           Note that for space reasons, some of its features are disabled
-          for the RT-N66U and RT-AC66U.
+          for the RT-N66U and RT-AC66U.  Entware users might want to
+          uninstall the Entware version if they had it installed and want
+          to use the built-in version instead.
    - NEW: Option to toggle the display of passwords on the PPTPD and
           OpenVPN server pages.
+   - NEW: Allow providing a vendor class on the WAN page (DHCP option 60)
+   - NEW: Add option to disable sending a RELEASE request when odhcp6c
+          exits, allowing you to retain your received prefix with some
+          ISPs.
    - CHANGED: Updated nettle to 3.2 (used for dnssec) and increased
               optimization level.
    - CHANGED: Updated minidlna to 1.1.6
    - CHANGED: Updated OpenVPN to 2.3.12
-   - CHANGED: Improvements to the Wireless Log page.
+   - CHANGED: Updated OpenSSL to 1.0.2i
+   - CHANGED: Revamped the Wireless Log page:
+                - Merged some columns to gain more horizontal space
+                - Longer hostname shown (truncated names are now
+                  shown in a tooltip)
+                - Display clients' IPv6 if they have one
    - CHANGED: Accept up to 250 characters for OpenVPN client's
               username and password (one provider needs 64).
+   - CHANGED: Hide the WPA key on the Wireless config page, and only
+              reveal it when you click on the field to edit it.
    - FIXED: OpenVPN client shouldn't display policy routing settings
             when using a TAP interface.
    - FIXED: DSL/ATM overhead setting was visible on MIPS models, which
@@ -25,8 +53,30 @@ Asuswrt-Merlin Changelog
    - FIXED: After turning off a Guest network, the next visit to the
             Wireless Settings page would show that guest network's settings
             instead of the parent band settings (Asus bug)
-   - FIXED: Smart Connect rules didn't apply on the RT-AC88U (fix ported
-            from 380_3941).
+   - FIXED: Smart Connect rules didn't apply on the RT-AC88U (backported
+            fix from 380_3941).
+   - FIXED: Numerous memory leaks in the networkmap service. (Asus bug)
+   - FIXED: Potential buffer overrun in the networkmap service. (Asus bug)
+   - FIXED: Broken IPv6 connectivity if enabling SSH brute force
+            protection (only MIPS models were affected)
+   - FIXED: 5G LED would fail to turn back on when exiting stealth mode.
+   - FIXED: Only hostname was used as remote server in an exported
+            OpenVPN client config when using Namecheap DDNS.
+   - FIXED: Security vulnerability (XSS/CSR) in httpd (backported
+            fix from 380_4005).
+   - FIXED: Chrome would try to autofill some fields (such as on the
+            DDNS configuration page), which could be problematic.
+   - FIXED: IPTraffic database was no longer properly named after
+            the router's MAC address on the AC88/AC3100/AC5300.
+            If you recently enabled it, you will need to either
+            re-create a new database, or rename the existing
+            database from tomato_cstats_000000000000.gz to
+            tomato_cstats_XXXXXXXXXXXX.gz, where "XXXXXXXXXXXX" is
+            your MAC as found with "nvram get et2macaddr", in
+            lowercase (AC88/AC3100/AC5300 only).
+
+            Regular traffic monitoring (stored in
+            tomato_rstats_XXXXXXXXXXXX.gz) is fine.
 
 
 380.61 (4-Aug-2016)
@@ -34,7 +84,7 @@ Asuswrt-Merlin Changelog
             on the status page following any wireless config change
             (Asus bug)
    - FIXED: OpenVPN server would report being "Initializing"
-            while it already was ready, follwoing any
+            while it already was ready, following any
             wireless config change (Asus bug)
    - FIXED: Various stability issues with minidlna (reverted some
             of Asus's customizations)
