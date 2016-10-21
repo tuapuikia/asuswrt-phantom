@@ -22,6 +22,7 @@
 <script language="JavaScript" type="text/javascript" src="/popup.js"></script>
 <script language="JavaScript" type="text/javascript" src="/merlin.js"></script>
 <script language="JavaScript" type="text/javascript" src="/client_function.js"></script>
+<script language="JavaScript" type="text/javascript" src="/validator.js"></script>
 <script type='text/javascript'>
 daily_history = [];
 <% backup_nvram("cstats_enable,lan_ipaddr,lan_netmask"); %>;
@@ -33,13 +34,11 @@ var filteripe_before = [];
 var dateFormat = 1;
 var scale = 1;
 
-var pie_obj_ul = null;
-var pie_obj_dl = null;
-var labels_array;
-var values_ul_array, values_dl_array;
+var pie_obj_ul, pie_obj_dl;
+var labels_array, values_ul_array, values_dl_array;
 
 var color = ["#B3645B","#B98F53","#C6B36A","#849E75","#2B6692","#7C637A","#4C8FC0", "#6C604F",
-             "#683222","#644726","#833236","#425238","#163346","#524142","#384767", "#386040"];
+             "#683222","#64B35B","#833236","#662B92","#163346","#644726","#384767", "#386040"];
 
 var pieOptions = {
 	segmentShowStroke : false,
@@ -62,7 +61,10 @@ var pieOptions = {
 			label: function (tooltipItem, data) {
 				var value = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
 				var total = eval(data.datasets[tooltipItem.datasetIndex].data.join("+"));
-				return comma(value.toFixed(2)) + " " + snames[scale] + ' ( ' + parseFloat(value * 100 / total).toFixed(2) + '% )';
+				if (total == 3.14159)
+					return "N/A";
+				else
+					return comma(value.toFixed(2)) + " " + snames[scale] + ' ( ' + parseFloat(value * 100 / total).toFixed(2) + '% )';
 			},
 		}
 	},
@@ -241,7 +243,7 @@ function _validate_iplist(o, event) {
 		update_filter();
 		return true;
 	} else {
-		return validate_iplist(o, event);
+		return validator.ipList(o, event);
 	}
 }
 
@@ -485,12 +487,16 @@ function updateClientList(e){
 }
 
 function draw_chart(){
-	if (labels_array.length == 0) return;
-
-	if (pie_obj_dl != null) pie_obj_dl.destroy();
-	if (pie_obj_ul != null) pie_obj_ul.destroy();
+	if (pie_obj_dl != undefined) pie_obj_dl.destroy();
+	if (pie_obj_ul != undefined) pie_obj_ul.destroy();
 	var ctx_dl = document.getElementById("pie_chart_dl").getContext("2d");
 	var ctx_ul = document.getElementById("pie_chart_ul").getContext("2d");
+
+	if (labels_array.length == 0) {
+		values_dl_array = [3.14159];
+		values_ul_array = [3.14159];
+		labels_array = ["No Clients"];
+	}
 
 	var pieData_dl = {labels: labels_array,
 		datasets: [
