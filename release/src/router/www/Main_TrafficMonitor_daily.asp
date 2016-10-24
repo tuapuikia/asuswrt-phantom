@@ -161,9 +161,6 @@ function init(){
 	initDate('ymd');
 	daily_history.sort(cmpHist);
 	redraw();
-	if(bwdpi_support){
-		document.getElementById('content_title').innerHTML = "<#menu5_3_2#> - <#traffic_monitor#>";
-	}
 }
 
 function switchPage(page){
@@ -197,13 +194,13 @@ function draw_chart(){
 		labels: barLabels,
 		datasets: [
 			{data: barDataDl,
-			label: "Daily DL (" + snames[scale] + ")",
+			label: "<#tm_reception#> (" + snames[scale].trim() + ")",
 			borderWidth: border,
 			backgroundColor: "#4C8FC0",
 			borderColor: "#000000"
 		},
 			{data: barDataUl,
-			label: "Daily UL (" + snames[scale] +")",
+			label: "<#tm_transmission#> (" + snames[scale].trim() +")",
 			borderWidth: border,
 			backgroundColor: "#4CC08F",
 			borderColor: "#000000"
@@ -266,7 +263,7 @@ function draw_chart(){
         			<tr>
 
 						<td  class="formfonttitle" align="left">
-										<div id="content_title" style="margin-top:5px;"><#Menu_TrafficManager#> - <#traffic_monitor#></div>
+										<div style="margin-top:5px;"><#Menu_TrafficManager#> - <#traffic_monitor#></div>
 									</td>
 
           			<td>
