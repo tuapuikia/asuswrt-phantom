@@ -940,6 +940,8 @@ define RouterOptions
 	if [ "$(NANO)" = "y" ]; then \
 		sed -i "/RTCONFIG_NANO/d" $(1); \
 		echo "RTCONFIG_NANO=y" >>$(1); \
+		else \
+		echo "RTCONFIG_NANO=n" >>$(1); \
 	fi; \
 	if [ "$(HTTPS)" = "y" ]; then \
 		sed -i "/RTCONFIG_HTTPS/d" $(1); \
