@@ -216,6 +216,8 @@ extern void osl_pci_device; EXPORT_SYMBOL(osl_pci_device);
 extern void osl_pci_read_config; EXPORT_SYMBOL(osl_pci_read_config);
 extern void osl_pci_slot; EXPORT_SYMBOL(osl_pci_slot);
 extern void osl_pci_write_config; EXPORT_SYMBOL(osl_pci_write_config);
+extern void osl_pcie_bus; EXPORT_SYMBOL(osl_pcie_bus);
+extern void osl_pcie_domain; EXPORT_SYMBOL(osl_pcie_domain);
 extern void osl_pcmcia_read_attr; EXPORT_SYMBOL(osl_pcmcia_read_attr);
 extern void osl_pcmcia_write_attr; EXPORT_SYMBOL(osl_pcmcia_write_attr);
 extern void osl_pkt_frmnative; EXPORT_SYMBOL(osl_pkt_frmnative);
