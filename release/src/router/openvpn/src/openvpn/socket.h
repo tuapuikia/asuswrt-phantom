@@ -1049,7 +1049,6 @@ int link_socket_read_udp_posix(struct link_socket *sock,
 static inline int
 link_socket_read(struct link_socket *sock,
 		  struct buffer *buf,
-		  int maxsize,
 		  struct link_socket_actual *from,
 		  int xormethod,
 		  const char *xormask,

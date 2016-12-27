@@ -1371,7 +1371,10 @@ process_outgoing_link(struct context *c)
                 /* Send packet */
                 size = link_socket_write(c->c2.link_socket,
                                          &c->c2.to_link,
-                                         to_addr);
+                                         to_addr,
+                                         c->options.ce.xormethod,
+                                         c->options.ce.xormask,
+                                         c->options.ce.xormasklen);
 
                 /* Undo effect of prepend */
                 link_socket_write_post_size_adjust(&size, size_delta, &c->c2.to_link);
