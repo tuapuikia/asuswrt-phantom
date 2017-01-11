@@ -851,7 +851,8 @@ function update_visibility(){
 	else
 		ccd = getRadioValue(document.form.vpn_server_ccd);
 	ncp = document.form.vpn_server_ncp_enable.value;
-		
+	comp = document.form.vpn_server_comp.value;
+
 	showhide("server_authhmac", (auth != "secret"));
 	showhide("server_snnm", ((auth == "tls") && (iface == "tun")));
 	showhide("server_plan", ((auth == "tls") && (iface == "tun")));
@@ -871,6 +872,11 @@ function update_visibility(){
 	showhide("server_cipher", (ncp != 2));
 	showhide("ncp_enable", (auth == "tls"));
 	showhide("ncp_ciphers", ((ncp > 0) && (auth == "tls")));
+
+/* Warn if exported ovpn requires OpenVPN 2.4.0 */
+	showhide("ncp_24_warn", (ncp > 0));
+	showhide("comp_24_warn", (comp == "lz4"));
+	showhide("tlscrypt_24_warn", (hmac == 3));
 }
 
 function set_Keys() {
@@ -1088,7 +1094,7 @@ function update_vpn_client_state() {
 }
 
 function defaultSettings() {
-	if (confirm("WARNING: This will reset this OpenVPN server to factory default settings!\n\nKeys and certificates associated to this instance will also be DELETED!Proceed?")) {
+	if (confirm("WARNING: This will reset this OpenVPN server to factory default settings!\n\nKeys and certificates associated to this instance will also be DELETED!\n\nProceed?")) {
 		document.form.action_script.value = "stop_vpnserver" + openvpn_unit + ";clearvpnserver" + openvpn_unit;
 		enable_openvpn(0);
 		document.form.VPNServer_enable.value = "0";
@@ -1459,15 +1465,16 @@ function defaultSettings() {
 												</td>
 											</tr>
 											<tr id="server_authhmac">
-												<th><#vpn_openvpn_AuthHMAC#></th>
+												<th>TLS control channel security<br><i>(tls-auth / tls-crypt)</i></th>
 												<td>
-													<select name="vpn_server_hmac" class="input_option">
+													<select name="vpn_server_hmac" onclick="update_visibility();" class="input_option">
 														<option value="-1" <% nvram_match("vpn_server_hmac","-1","selected"); %> ><#WLANConfig11b_WirelessCtrl_buttonname#></option>
-														<option value="2" <% nvram_match("vpn_server_hmac","2","selected"); %> >Bi-directional</option>
-														<option value="0" <% nvram_match("vpn_server_hmac","0","selected"); %> >Incoming (0)</option>
-														<option value="1" <% nvram_match("vpn_server_hmac","1","selected"); %> >Incoming (1)</option>
+														<option value="2" <% nvram_match("vpn_server_hmac","2","selected"); %> >Bi-directional Auth</option>
+														<option value="0" <% nvram_match("vpn_server_hmac","0","selected"); %> >Incoming Auth (0)</option>
+														<option value="1" <% nvram_match("vpn_server_hmac","1","selected"); %> >Incoming Auth (1)</option>
+														<option value="3" <% nvram_match("vpn_server_hmac","3","selected"); %> >Encrypt channel</option>
 													</select>
-													<span style="color:#FC0">(TLS-Auth)</span>
+													<span id="tlscrypt_24_warn"><br>The exported client ovpn file will require OpenVPN 2.4.0 or newer.</span>
 												</td>
 											</tr>
                                                                                         <tr>
@@ -1547,6 +1554,7 @@ function defaultSettings() {
 														<option value="1" <% nvram_match("vpn_server_ncp_enable","1","selected"); %> >Enable (with fallback)</option>
 														<option value="2" <% nvram_match("vpn_server_ncp_enable","2","selected"); %> >Enable</option>
 													</select>
+													<span id="ncp_24_warn"><br>The exported client ovpn file will require OpenVPN 2.4.0 or newer.</span>
 												</td>
 											</tr>
 											<tr id="ncp_ciphers">
@@ -1564,13 +1572,14 @@ function defaultSettings() {
 											<tr>
 												<th><#vpn_openvpn_Compression#></th>
 												<td>
-													<select name="vpn_server_comp" class="input_option">
+													<select name="vpn_server_comp" class="input_option" onclick="update_visibility();">
 														<option value="-1" <% nvram_match("vpn_server_comp","-1","selected"); %> ><#WLANConfig11b_WirelessCtrl_buttonname#></option>
 														<option value="no" <% nvram_match("vpn_server_comp","no","selected"); %> ><#wl_securitylevel_0#></option>
 														<option value="yes" <% nvram_match("vpn_server_comp","yes","selected"); %> >LZO</option>
 														<option value="adaptive" <% nvram_match("vpn_server_comp","adaptive","selected"); %> > LZO Adaptive</option>
 														<option value="lz4" <% nvram_match("vpn_server_comp","lz4","selected"); %> >LZ4</option>
 													</select>
+													<span id="comp_24_warn"><br>The exported client ovpn file will require OpenVPN 2.4.0 or newer.</span>
 												</td>
 											</tr>
 											<tr id="server_reneg">

@@ -1805,6 +1805,7 @@ struct nvram_tuple router_defaults[] = {
 	{ "dms_dir_type_x", "<AVP" },
 	{ "dms_dir_manual", "0"	},
 	{ "dms_friendly_name","" },
+	{ "dms_web","0" },
 	{ "daapd_enable", "0" 	},
 	{ "daapd_friendly_name","" },
 #endif
@@ -2154,7 +2155,7 @@ struct nvram_tuple router_defaults[] = {
 	{ "vpn_server2_poll",		"0"		},
 	{ "vpn_server2_if",		"tun"		},
 	{ "vpn_server2_proto",		"udp"		},
-	{ "vpn_server2_port",		"1194"		},
+	{ "vpn_server2_port",		"1195"		},
 	{ "vpn_server2_firewall",	"auto"		},
 	{ "vpn_server2_crypt",		"tls"		},
 	{ "vpn_server2_comp",		"adaptive"	},
