@@ -863,12 +863,14 @@ void start_vpnserver(int serverNum)
 	sprintf(&buffer[0], "vpn_server%d_port", serverNum);
 	fprintf(fp, "port %d\n", nvram_get_int(&buffer[0]));
 
-	if((nvram_get_int("ddns_enable_x")) && (!nvram_match("ddns_server_x","CUSTOM")))
+	if(nvram_get_int("ddns_enable_x"))
 	{
 		if (nvram_match("ddns_server_x","WWW.NAMECHEAP.COM"))
 			fprintf(fp_client, "remote %s.%s %s\n", nvram_safe_get("ddns_hostname_x"), nvram_safe_get("ddns_username_x"), nvram_safe_get(&buffer[0]));
 		else
-			fprintf(fp_client, "remote %s %s\n", nvram_safe_get("ddns_hostname_x"), nvram_safe_get(&buffer[0]));
+			fprintf(fp_client, "remote %s %s\n",
+			    (strlen(nvram_safe_get("ddns_hostname_x")) ? nvram_safe_get("ddns_hostname_x") : nvram_safe_get("wan0_ipaddr")),
+			    nvram_safe_get(&buffer[0]));
 	}
 	else
 	{
@@ -1728,7 +1730,7 @@ void stop_vpn_eas()
 
 void stop_vpn_all()
 {
-	char buffer[16], *cur;
+	char buffer[16];
 	int i;
 
 	// stop servers
@@ -1981,7 +1983,6 @@ void update_vpnrouting(int unit){
 void reset_vpn_settings(int type, int unit){
         struct nvram_tuple *t;
         char prefix[]="vpn_serverX_", tmp[100];
-        char word[256], *next;
 	char *service;
 
 	if (type == 1)

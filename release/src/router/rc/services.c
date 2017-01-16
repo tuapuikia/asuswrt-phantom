@@ -3655,6 +3655,7 @@ int generate_mdns_config(void)
 	char avahi_config[80];
 	char et0macaddr[18];
 	int ret = 0;
+	char *wan1_ifname;
 
 	sprintf(avahi_config, "%s/%s", AVAHI_CONFIG_PATH, AVAHI_CONFIG_FN);
 
@@ -3687,7 +3688,13 @@ int generate_mdns_config(void)
 #endif
 	fprintf(fp, "use-ipv4=yes\n");
 	fprintf(fp, "use-ipv6=no\n");
-	fprintf(fp, "deny-interfaces=%s\n", nvram_safe_get("wan0_ifname"));
+	fprintf(fp, "deny-interfaces=%s", nvram_safe_get("wan0_ifname"));
+#ifdef RTCONFIG_DUALWAN
+	wan1_ifname = nvram_safe_get("wan1_ifname");
+	if (*wan1_ifname)
+		fprintf(fp, ",%s", wan1_ifname);
+#endif
+	fprintf(fp, "\n");
 	fprintf(fp, "ratelimit-interval-usec=1000000\n");
 	fprintf(fp, "ratelimit-burst=1000\n");
 
@@ -8347,10 +8354,8 @@ void start_Tor_proxy(void)
 	fprintf(fp, "Log notice file /tmp/torlog\n");
 	fprintf(fp, "VirtualAddrNetwork 10.192.0.0/10\n");
 	fprintf(fp, "AutomapHostsOnResolve 1\n");
-	fprintf(fp, "TransPort %s\n", Transport);
-	fprintf(fp, "TransListenAddress %s\n", nvram_safe_get( "lan_ipaddr" ));
-	fprintf(fp, "DNSPort %s\n", Dnsport);
-	fprintf(fp, "DNSListenAddress %s\n", nvram_safe_get( "lan_ipaddr" ));
+	fprintf(fp, "TransPort %s:%s\n", nvram_safe_get( "lan_ipaddr" ), Transport);
+	fprintf(fp, "DNSPort %s:%s\n", nvram_safe_get( "lan_ipaddr" ), Dnsport);
 	fprintf(fp, "RunAsDaemon 1\n");
 	fprintf(fp, "DataDirectory /tmp/.tordb\n");
 	fprintf(fp, "AvoidDiskWrites 1\n");
