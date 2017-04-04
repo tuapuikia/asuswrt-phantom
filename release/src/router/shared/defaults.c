@@ -718,7 +718,7 @@ struct nvram_tuple router_defaults[] = {
 
 #if defined(RTCONFIG_BCMARM)
 #ifndef RTCONFIG_WIFILOGO
-	{ "wl_atf", "1", 0 }, 			/* Airtime Fairness */
+	{ "wl_atf", "0", 0 }, 			/* Airtime Fairness */
 #else
 	{ "wl_atf", "0", 0 },
 #endif
@@ -1248,6 +1248,10 @@ struct nvram_tuple router_defaults[] = {
 	{ "dslx_annex", "4" }, // Annex AIJLM(EnumAdslTypeA_I_J_L_M)
 #endif
 	{ "dslx_ginp", "1" },
+#ifdef RTCONFIG_DSL_TCLINUX
+	{ "dslx_ginp_try_enable", "0" },
+	{ "dslx_ginp_try_enable_disp", "0" },
+#endif
 	{ "dslx_dla_enable", "1" },
 	{ "dslx_diag_enable", "0" },
 	{ "dslx_diag_duration", "0" },
@@ -2211,6 +2215,7 @@ struct nvram_tuple router_defaults[] = {
 	{ "vpn_server_custom",		""		},
 	{ "vpn_server_igncrt",		"1"		},
 	{ "vpn_server_userpass_auth",	"0"		},
+	{ "vpn_server_verb",		"3"		},
 	{ "vpn_server1_poll",		"0"		},
 	{ "vpn_server1_if",		"tun"		},
 	{ "vpn_server1_proto",		"udp"		},
@@ -2243,6 +2248,7 @@ struct nvram_tuple router_defaults[] = {
 	{ "vpn_server1_igncrt",		"1"		},
 	{ "vpn_server1_state",		"0"		},
 	{ "vpn_server1_errno",		"0"		},
+	{ "vpn_server1_verb",		"3"		},
 	{ "vpn_crt_server1_static",	""		},
 	{ "vpn_crt_server1_ca",		""		},
 	{ "vpn_crt_server1_ca_key",	""		},
@@ -2284,6 +2290,7 @@ struct nvram_tuple router_defaults[] = {
 	{ "vpn_server2_igncrt",		"1"		},
 	{ "vpn_server2_state",		"0"		},
 	{ "vpn_server2_errno",		"0"		},
+	{ "vpn_server2_verb",		"3"		},
 	{ "vpn_crt_server2_static",	""		},
 	{ "vpn_crt_server2_ca",		""		},
 	{ "vpn_crt_server2_ca_key",	""		},
@@ -2335,6 +2342,7 @@ struct nvram_tuple router_defaults[] = {
 	{ "vpn_client1_errno",		"0"		},
 	{ "vpn_client1_clientlist",	""		},
 	{ "vpn_client1_enforce",	"0"		},
+	{ "vpn_client1_verb",		"3"		},
 	{ "vpn_client2_poll",		"0"		},
 	{ "vpn_client2_if",		"tun"		},
 	{ "vpn_client2_bridge",		"1"		},
@@ -2363,6 +2371,7 @@ struct nvram_tuple router_defaults[] = {
 	{ "vpn_client2_cn",		""		},
 	{ "vpn_client2_tlsremote",	"0"		},
 	{ "vpn_client2_useronly",	"0"		},
+	{ "vpn_client2_verb",		"3"		},
 	{ "vpn_crt_client2_static",	""		},
 	{ "vpn_crt_client2_ca",		""		},
 	{ "vpn_crt_client2_crt",	""		},
@@ -2404,6 +2413,7 @@ struct nvram_tuple router_defaults[] = {
 	{ "vpn_client3_cn",		""		},
 	{ "vpn_client3_tlsremote",	"0"		},
 	{ "vpn_client3_useronly",	"0"		},
+	{ "vpn_client3_verb",		"3"		},
 	{ "vpn_crt_client3_static",	""		},
 	{ "vpn_crt_client3_ca",		""		},
 	{ "vpn_crt_client3_crt",	""		},
@@ -2445,6 +2455,7 @@ struct nvram_tuple router_defaults[] = {
 	{ "vpn_client4_cn",		""		},
 	{ "vpn_client4_tlsremote",	"0"		},
 	{ "vpn_client4_useronly",	"0"		},
+	{ "vpn_client4_verb",		"3"		},
 	{ "vpn_crt_client4_static",	""		},
 	{ "vpn_crt_client4_ca",		""		},
 	{ "vpn_crt_client4_crt",	""		},
@@ -2486,6 +2497,7 @@ struct nvram_tuple router_defaults[] = {
 	{ "vpn_client5_cn",		""		},
 	{ "vpn_client5_tlsremote",	"0"		},
 	{ "vpn_client5_useronly",	"0"		},
+	{ "vpn_client5_verb",		"3"		},
 	{ "vpn_crt_client5_static",	""		},
 	{ "vpn_crt_client5_ca",		""		},
 	{ "vpn_crt_client5_crt",	""		},
@@ -2530,6 +2542,7 @@ struct nvram_tuple router_defaults[] = {
 	{ "vpn_client_username",	""		},
 	{ "vpn_client_password",	""		},
 	{ "vpn_client_useronly",	"0"		},
+	{ "vpn_client_verb",		"3"		},
 	{ "vpn_client_clientlist",	""		},
 	{ "vpn_client_enforce",		"0"		},
 #endif
@@ -2722,7 +2735,7 @@ struct nvram_tuple router_defaults[] = {
 	{ "Ate_boot_fail",		"0" },
 	{ "Ate_total_fail",		"10" },
 	{ "Ate_continue_fail",		"3" },
-	{ "dev_fail_reboot",		"3" },
+	{ "dev_fail_reboot",		"1" },
 	// Wireless parameters
 
 #ifdef RTCONFIG_SNMPD
@@ -2881,10 +2894,10 @@ struct nvram_tuple router_defaults[] = {
 	{ "rip_hostname", "ripd" },        // Set hostname of the ripd.(default: ripd)
 	{ "rip_passwd", "zebra" },         // Set password for vty interface. If there is no password, a vty won? accept connections.(default: zebra)
 #endif
-#ifdef BRTAC828M2
+#ifdef BRTAC828
 	{ "lan_trunk_0", "0"},
 	{ "lan_trunk_1", "0"},
-#endif	/* BRTAC828M2 */
+#endif	/* BRTAC828 */
 
 #if defined(RTCONFIG_PORT_BASED_VLAN)
 	//{ "vlan_enable", "0" },
@@ -5058,7 +5071,7 @@ struct nvram_tuple router_defaults_override_type1[] = {
 	{ "wl_ebos_prr_transit", "-1", 0 },	/* pseudo-round robin transit limit */
 
 	/* Airtime fairness */
-	{ "wl_atf", "1", 0 },			/* ATF feature on */
+	{ "wl_atf", "0", 0 },			/* ATF feature off */
 #else
 	{ "wl_taf_enable", "0", 0 },		/* Disable TAF */
 #endif

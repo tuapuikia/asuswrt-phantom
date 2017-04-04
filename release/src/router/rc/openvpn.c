@@ -10,6 +10,7 @@
 
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <sys/stat.h>
 #include <dirent.h>
 #include <string.h>
 #include <time.h>
@@ -290,8 +291,10 @@ void start_vpnclient(int clientNum)
 	fprintf(fp, "route-up vpnrouting.sh\n");
 	fprintf(fp, "route-pre-down vpnrouting.sh\n");
 
-	nvi = nvram_get_int("vpn_loglevel");
-	if (nvi >= 0)
+	sprintf(&buffer[0], "vpn_client%d_verb", clientNum);
+	if( !nvram_is_empty(&buffer[0]) && (nvi = nvram_get_int(&buffer[0])) >= 0 )
+		fprintf(fp, "verb %d\n", nvi);
+	else if ( (nvi = nvram_get_int("vpn_loglevel")) >= 0 )
 		fprintf(fp, "verb %d\n", nvi);
 	else
 		fprintf(fp, "verb 3\n");
@@ -488,7 +491,9 @@ void start_vpnclient(int clientNum)
 		fprintf(fp, "#!/bin/sh\n");
 		fprintf(fp, "iptables -I INPUT -i %s -j ACCEPT\n", &iface[0]);
 		fprintf(fp, "iptables -I FORWARD %d -i %s -j ACCEPT\n", (nvram_match("cstats_enable", "1") ? 4 : 2), &iface[0]);
-		fprintf(fp, "iptables -t mangle -I PREROUTING -i %s -j MARK --set-mark 0x01/0x7\n", &iface[0]);
+		if (nvram_match("ctf_disable", "0")) {
+			fprintf(fp, "iptables -t mangle -I PREROUTING -i %s -j MARK --set-mark 0x01/0x7\n", &iface[0]);
+		}
 		// Setup traffic accounting
 		if (nvram_match("cstats_enable", "1")) {
 			ipt_account(fp, &iface[0]);
@@ -854,10 +859,8 @@ void start_vpnserver(int serverNum)
 	//protocol
 	sprintf(&buffer[0], "vpn_server%d_proto", serverNum);
 	fprintf(fp, "proto %s\n", nvram_safe_get(&buffer[0]));
-	if(!strcmp(nvram_safe_get(&buffer[0]), "udp")) {
-		fprintf(fp, "multihome\n");
+	if(!strcmp(nvram_safe_get(&buffer[0]), "udp"))
 		fprintf(fp_client, "proto %s\n", nvram_safe_get(&buffer[0]));
-	}
 	else
 		fprintf(fp_client, "proto tcp-client\n");
 
@@ -934,7 +937,10 @@ void start_vpnserver(int serverNum)
 	fprintf(fp, "keepalive 15 60\n");
 	fprintf(fp_client, "keepalive 15 60\n");
 
-	if ( (nvi = nvram_get_int("vpn_loglevel")) >= 0 )
+	sprintf(&buffer[0], "vpn_server%d_verb", serverNum);
+	if( !nvram_is_empty(&buffer[0]) && (nvi = nvram_get_int(&buffer[0])) >= 0 )
+		fprintf(fp, "verb %d\n", nvi);
+	else if ( (nvi = nvram_get_int("vpn_loglevel")) >= 0 )
 		fprintf(fp, "verb %d\n", nvi);
 	else
 		fprintf(fp, "verb 3\n");
@@ -1103,7 +1109,7 @@ void start_vpnserver(int serverNum)
 			}
 		}
 
-		fprintf(fp_client, "ns-cert-type server\n");
+		fprintf(fp_client, "remote-cert-tls server\n");
 		//sprintf(&buffer[0], "vpn_crt_server%d_ca", serverNum);
 		//if ( !ovpn_crt_is_empty(&buffer[0]) )
 			fprintf(fp, "ca ca.crt\n");
@@ -1486,7 +1492,8 @@ void start_vpnserver(int serverNum)
 		{
 			fprintf(fp, "iptables -I INPUT -i %s -j ACCEPT\n", &iface[0]);
 			fprintf(fp, "iptables -I FORWARD %d -i %s -j ACCEPT\n", (nvram_match("cstats_enable", "1") ? 4 : 2), &iface[0]);
-			fprintf(fp, "iptables -t mangle -I PREROUTING -i %s -j MARK --set-mark 0x01/0x7\n", &iface[0]);
+			if (nvram_match("ctf_disable", "0"))
+				fprintf(fp, "iptables -t mangle -I PREROUTING -i %s -j MARK --set-mark 0x01/0x7\n", &iface[0]);
 		}
 		if (nvram_match("cstats_enable", "1")) {
 			ipt_account(fp, &iface[0]);
