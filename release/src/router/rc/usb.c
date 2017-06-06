@@ -568,7 +568,7 @@ void stop_usb_program(int mode)
 #endif
 
 #if defined(RTCONFIG_APP_PREINSTALLED) || defined(RTCONFIG_APP_NETINSTALLED)
-#if (defined(RTCONFIG_APP_PREINSTALLED) || defined(RTCONFIG_APP_NOLOCALDM)) && defined(RTCONFIG_CLOUDSYNC)
+#if defined(RTCONFIG_CLOUDSYNC)
 	if(pids("inotify") || pids("asuswebstorage") || pids("webdav_client") || pids("dropbox_client") || pids("ftpclient") || pids("sambaclient") || pids("usbclient")){
 		_dprintf("%s: stop_cloudsync.\n", __FUNCTION__);
 		stop_cloudsync(-1);
@@ -605,6 +605,11 @@ void stop_usb(int f_force)
 {
 #endif
 	int disabled = !nvram_get_int("usb_enable");
+
+#if defined(RTCONFIG_USB_MODEM) && (defined(RTCONFIG_JFFS2) || defined(RTCONFIG_BRCM_NAND_JFFS2) || defined(RTCONFIG_UBIFS))
+	_dprintf("stop_usb: save the modem data.\n");
+	eval("/usr/sbin/modem_status.sh", "bytes+");
+#endif
 
 	stop_usb_program(0);
 
@@ -1101,7 +1106,7 @@ int umount_mountpoint(struct mntent *mnt, uint flags)
 	//run_userfile(mnt->mnt_dir, ".autostop", mnt->mnt_dir, 5);
 	//run_nvscript("script_autostop", mnt->mnt_dir, 5);
 #if defined(RTCONFIG_APP_PREINSTALLED) || defined(RTCONFIG_APP_NETINSTALLED)
-#if (defined(RTCONFIG_APP_PREINSTALLED) || defined(RTCONFIG_APP_NOLOCALDM)) && defined(RTCONFIG_CLOUDSYNC)
+#if defined(RTCONFIG_CLOUDSYNC)
 	char word[PATH_MAX], *next_word;
 	char *b, *nvp, *nv;
 	int type = 0, enable = 0;
@@ -1532,7 +1537,7 @@ done:
 
 		run_custom_script_blocking("post-mount", mountpoint);
 
-#if (defined(RTCONFIG_APP_PREINSTALLED) || defined(RTCONFIG_APP_NOLOCALDM)) && defined(RTCONFIG_CLOUDSYNC)
+#if defined(RTCONFIG_CLOUDSYNC)
 		char word[PATH_MAX], *next_word;
 		char *cloud_setting, *b, *nvp, *nv;
 		int type = 0, rule = 0, enable = 0;
@@ -4355,12 +4360,15 @@ void start_nfsd(void)
 	if (nvram_match("nfsd_enable", "0")) return;
 
 	/* create directories/files */
-	mkdir("/var/lib", 0755);
-	mkdir("/var/lib/nfs", 0755);
+	mkdir_if_none("/var/lib");
+	mkdir_if_none("/var/lib/nfs");
 #ifdef LINUX26
-	mkdir("/var/lib/nfs/v4recovery", 0755);
+	mkdir_if_none("/var/lib/nfs/v4recovery");
 	mount("nfsd", "/proc/fs/nfsd", "nfsd", MS_MGC_VAL, NULL);
 #endif
+	unlink("/var/lib/nfs/etab");
+	unlink("/var/lib/nfs/xtab");
+	unlink("/var/lib/nfs/rmtab");
 	close(creat("/var/lib/nfs/etab", 0644));
 	close(creat("/var/lib/nfs/xtab", 0644));
 	close(creat("/var/lib/nfs/rmtab", 0644));
@@ -4394,7 +4402,8 @@ void start_nfsd(void)
 	append_custom_config("exports", fp);
 	fclose(fp);
 	run_postconf("exports", NFS_EXPORT);
-	eval("/usr/sbin/portmap");
+	if (!pids("portmap"))
+		eval("/usr/sbin/portmap");
 	eval("/usr/sbin/statd");
 
 	if (nvram_match("nfsd_enable_v2", "1")) {
@@ -4413,18 +4422,20 @@ void start_nfsd(void)
 
 void restart_nfsd(void)
 {
-	eval("/usr/sbin/exportfs", "-au");
-	eval("/usr/sbin/exportfs", "-a");
+	//eval("/usr/sbin/exportfs", "-au");
+	//eval("/usr/sbin/exportfs", "-a");
+	eval("/usr/sbin/exportfs", "-r");
 
 	return;
 }
 
 void stop_nfsd(void)
 {
+	eval("/usr/sbin/exportfs", "-au");
 	killall_tk("mountd");
 	killall("nfsd", SIGKILL);
 	killall_tk("statd");
-	killall_tk("portmap");
+//	killall_tk("portmap");
 
 #ifdef LINUX26
 	umount("/proc/fs/nfsd");
