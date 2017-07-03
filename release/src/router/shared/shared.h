@@ -316,7 +316,10 @@ enum {
 	MODEL_RTAC55U,
 	MODEL_RTAC55UHP,
 	MODEL_RT4GAC55U,
+// Need binary blobs from 76xx or newer
+#if !defined(RTN66U) && !defined(RTAC87U)
 	MODEL_PLN11,
+#endif
 	MODEL_PLN12,
 	MODEL_PLAC56,
 	MODEL_PLAC66U,
@@ -428,6 +431,7 @@ extern int pidof(const char *name);
 extern int killall(const char *name, int sig);
 extern int process_exists(pid_t pid);
 extern int module_loaded(const char *module);
+extern int ppid(int pid);
 
 // files.c
 extern int check_if_dir_empty(const char *dirpath);
@@ -1005,10 +1009,14 @@ extern const char *ipv6_gateway_address(void);
 #ifdef RTCONFIG_OPENVPN
 #if defined(RTCONFIG_JFFS2) || defined(RTCONFIG_BRCM_NAND_JFFS2) || defined(RTCONFIG_UBIFS)
 #define OVPN_FS_PATH	"/jffs/openvpn"
+#if defined(RTAC3200)
+#define MAX_OVPN_CLIENT	2
+#else
 #define MAX_OVPN_CLIENT	5
+#endif	//RTAC3200
 #else
 #define MAX_OVPN_CLIENT	1
-#endif
+#endif	//JFFS
 extern char *get_parsed_crt(const char *name, char *buf, size_t buf_len);
 extern int set_crt_parsed(const char *name, char *file_path);
 extern int ovpn_crt_is_empty(const char *name);

@@ -391,6 +391,14 @@ function validForm(){
 		if(!validator.string(document.form.wan_pppoe_service)
 				|| !validator.string(document.form.wan_pppoe_ac))
 			return false;
+
+		//pppoe hostuniq
+		if(!validator.hex(document.form.wan_pppoe_hostuniq)) {
+			alert("Host-uniq should be hexadecimal digits.");
+			document.form.wan_pppoe_hostuniq.focus();
+			document.form.wan_pppoe_hostuniq.select();
+			return false;
+		}
 	}
 
         if((document.form.wan_proto.value == "dhcp")
@@ -406,9 +414,7 @@ function validForm(){
 				return false;
 			}
 			if((document.form.ewan_vid.value >= 1 && document.form.ewan_vid.value <= 3) ||
-				(document.form.ewan_vid.value == 20) ||
-				(document.form.ewan_vid.value >= 3880 && document.form.ewan_vid.value <= 3887) ||
-				(document.form.ewan_vid.value >= 4000 && document.form.ewan_vid.value <= 4002)){
+				(document.form.ewan_vid.value >= 3880 && document.form.ewan_vid.value <= 3887)){
 				alert("VLAN ID " + document.form.ewan_vid.value + " is reserved for internal usage. Please change to another one."); /* untranslated */
 				document.form.ewan_vid.focus();
 				return false;
@@ -421,17 +427,18 @@ function validForm(){
 	}
 	
 	if(document.form.wan_hostname.value.length > 0){
-		if(validator.hostName(document.form.wan_hostname) != ""){
-			var alert_str = validator.domainName(document.form.wan_hostname);
-			if(alert_str != ""){
-				showtext(document.getElementById("alert_msg1"), alert_str);
-				document.getElementById("alert_msg1").style.display = "";
-				document.form.wan_hostname.focus();
-				document.form.wan_hostname.select();
-				return false;
-			}
-		}
-		document.getElementById("alert_msg1").style.display = "none";
+		var alert_str = validator.domainName(document.form.wan_hostname);
+	
+		if(alert_str != ""){
+			showtext(document.getElementById("alert_msg1"), alert_str);
+			document.getElementById("alert_msg1").style.display = "";
+			document.form.wan_hostname.focus();
+			document.form.wan_hostname.select();
+			return false;
+		}else{
+			document.getElementById("alert_msg1").style.display = "none";
+  	}
+
 		document.form.wan_hostname.value = trim(document.form.wan_hostname.value);
 	}	
 	
@@ -1056,7 +1063,7 @@ function ppp_echo_control(flag){
 							<td align="left">
 							    <select class="input_option" name="wan_auth_x" onChange="change_wan_type(document.form.wan_proto.value);">
 							    <option value="" <% nvram_match("wan_auth_x", "", "selected"); %>><#wl_securitylevel_0#></option>
-							    <option value="8021x-md5" <% nvram_match("wan_auth_x", "8021x-md5", "selected"); %>>802.1x MD5</option>
+							    <option value="8021x-md5" <% nvram_match("wan_auth_x", "8021x-md5", "selected"); %>>802.1x</option>
 							    <option value="telenet" <% nvram_match("wan_auth_x", "telenet", "selected"); %>>Кабinet</option>
 							    </select></td>
 							</tr>
@@ -1094,6 +1101,10 @@ function ppp_echo_control(flag){
               	<th><a class="hintstyle" href="javascript:void(0);" onClick="openHint(7,10);"><#PPPConnection_x_AccessConcentrator_itemname#></a></th>
               	<td><input type="text" maxlength="32" class="input_32_table" name="wan_pppoe_ac" value="<% nvram_get("wan_pppoe_ac"); %>" onkeypress="return validator.isString(this, event)" autocorrect="off" autocapitalize="off"/></td>
             	</tr>
+				<tr>
+					<th><a class="hintstyle" href="javascript:void(0);" onClick="openHint(7,18);">Host-Uniq (Hexadecimal)</a><!--untranslated--></th>
+					<td><input type="text" maxlength="32" class="input_32_table" name="wan_pppoe_hostuniq" value="<% nvram_get("wan_pppoe_hostuniq"); %>" onkeypress="return validator.isString(this, event);" autocorrect="off" autocapitalize="off"/></td>
+				</tr>
             	<!-- 2008.03 James. patch for Oleg's patch. { -->
 		<tr>
 		<th><a class="hintstyle" href="javascript:void(0);" onClick="openHint(7,17);"><#PPPConnection_x_PPTPOptions_itemname#></a></th>

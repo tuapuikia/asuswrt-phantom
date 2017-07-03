@@ -1307,9 +1307,6 @@ void btn_check(void)
 				led_control_normal();
 
 				alarmtimer(NORMAL_PERIOD, 0);
-#if (!defined(W7_LOGO) && !defined(WIFI_LOGO))
-				stop_wps_method();
-#endif
 #ifdef RTCONFIG_WIFI_CLONE
 				if (nvram_match("wps_e_success", "1")) {
 #if (defined(PLN12) || defined(PLAC56))
@@ -3469,8 +3466,7 @@ static void Tor_microdes_check() {
 
 	FILE *f;
 	char buf[256];
-	char *ifname, *p;
-	unsigned long counter1, counter2;
+	char *p;
 	struct stat tmp_db_stat, jffs_db_stat;
 	int tmp_stat, jffs_stat;
 
@@ -3487,7 +3483,7 @@ static void Tor_microdes_check() {
 			return;
 		}
 
-		if ((f = fopen("/tmp/torlog", "r")) == NULL) return -1;
+		if ((f = fopen("/tmp/torlog", "r")) == NULL) return;
 
 		while (fgets(buf, sizeof(buf), f)) {
 			if ((p=strstr(buf, "now have enough directory")) == NULL) continue;

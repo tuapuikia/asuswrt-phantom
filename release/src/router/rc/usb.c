@@ -2005,10 +2005,11 @@ void write_ftpd_conf()
 #if (!defined(LINUX30) && LINUX_VERSION_CODE < KERNEL_VERSION(2,6,36))
 	fprintf(fp, "use_sendfile=NO\n");
 #endif
+#ifndef RTCONFIG_BCMARM
+	fprintf(fp, "isolate=NO\n");	// 3.x: Broken for MIPS
+#endif
 
 #ifdef RTCONFIG_IPV6
-/* vsftpd 3.x */
-/*
 	if (ipv6_enabled()) {
 		fprintf(fp, "listen_ipv6=YES\n");
 		// vsftpd 3.x can't use both listen at same time.  We don't specify an interface, so
@@ -2017,8 +2018,7 @@ void write_ftpd_conf()
 	} else {
 		fprintf(fp, "listen=YES\n");
 	}
-*/
-	fprintf(fp, "listen%s=YES\n", ipv6_enabled() ? "_ipv6" : "");
+
 #else
 	fprintf(fp, "listen=YES\n");
 #endif
@@ -2053,6 +2053,16 @@ void write_ftpd_conf()
 	if(!strcmp(nvram_safe_get("enable_ftp_log"), "1")){
 		fprintf(fp, "xferlog_enable=YES\n");
 		fprintf(fp, "xferlog_file=/var/log/vsftpd.log\n");
+	}
+
+	if(nvram_get_int("ftp_tls")){
+		fprintf(fp, "ssl_enable=YES\n");
+		fprintf(fp, "rsa_cert_file=/jffs/ssl/ftp.crt\n");
+		fprintf(fp, "rsa_private_key_file=/jffs/ssl/ftp.key\n");
+
+		if(!check_if_file_exist("/jffs/ssl/ftp.key")||!check_if_file_exist("/jffs/ssl/ftp.crt")){
+			eval("gencert.sh", "ftp");
+		}
 	}
 
 	append_custom_config("vsftpd.conf", fp);
@@ -3051,7 +3061,7 @@ void start_cloudsync(int fromUI)
 
 	cloud_setting = nvram_safe_get("cloud_sync");
 
-	nv = nvp = strdup(nvram_safe_get("cloud_sync"));
+	nv = nvp = strdup(cloud_setting);
 	if(nv){
 		while((b = strsep(&nvp, "<")) != NULL){
 			count = 0;
