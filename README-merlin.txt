@@ -76,17 +76,19 @@ Disk sharing:
    - Disk spindown after user-configurable inactivity timeout
    - NFS sharing (through webui)
    - Allow or disable WAN access to the FTP server
-   - Updated Samba version (3.6)
+   - Updated Samba version (3.6), with SMB2.0 support
+   - TLS support for the FTP server
 
 
 Networking:
    - Force acting as a Master Browser
    - Act as a WINS server
+   - SSHD support for key-based authentication
    - Allows tweaking TCP/UDP connection tracking timeouts
    - CIFS client support (for mounting remote SMB share on the router)
-   - Layer7 iptables matching (N66/AC66 only)
    - User-defined options for WAN DHCP queries (required by some ISPs)
    - Advanced OpenVPN client and server support
+   - Support for new OpenVPN 2.4 features like NCP and LZ4
    - Netfilter ipset module, for efficient blacklist implementation
    - Configurable min/max UPNP ports
    - IPSec kernel support (N66/AC66 only)
@@ -97,11 +99,11 @@ Networking:
    - Policy routing for the OpenVPN client (based on source or
      destination IPs), sometimes referred to as "selective routing")
    - DNSSEC support
-   - Experimental support for fq_codel in Traditionnal QoS
-     (ARM-based models only)
+   - fq_codel queue discipline for QoS (ARM-based models only)
 
 
 Web interface:
+   - Performance improvements
    - Optionally save traffic stats to disk (USB or JFFS partition)
    - Enhanced traffic monitoring, reporting traffic per IP, and
      displaying graphical reports of historical data
@@ -113,6 +115,7 @@ Web interface:
    - Advanced Wireless client list display, including automated refresh
    - Redesigned layout of the various System Log sections
    - Editable fields for some pages
+   - User-provided SSL certificate
 
 
 A few features that first appeared in Asuswrt-Merlin have since been 

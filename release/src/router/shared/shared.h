@@ -316,10 +316,7 @@ enum {
 	MODEL_RTAC55U,
 	MODEL_RTAC55UHP,
 	MODEL_RT4GAC55U,
-// Need binary blobs from 76xx or newer
-#if !defined(RTN66U) && !defined(RTAC87U)
 	MODEL_PLN11,
-#endif
 	MODEL_PLN12,
 	MODEL_PLAC56,
 	MODEL_PLAC66U,
@@ -953,6 +950,7 @@ extern int ascii_to_char_safe(const char *output, const char *input, int outsize
 extern void ascii_to_char(const char *output, const char *input);
 extern const char *find_word(const char *buffer, const char *word);
 extern int remove_word(char *buffer, const char *word);
+extern int replace_char(char *str, const char from, const char to);
 extern int str_escape_quotes(const char *output, const char *input, int outsize);
 
 // file.c
@@ -1067,6 +1065,8 @@ extern void traffic_limiter_set_bit(const char *type, int unit);
 extern void traffic_limiter_clear_bit(const char *type, int unit);
 extern double traffic_limiter_get_realtime(int unit);
 #endif
+
+/* scripts.c */
 #define xstart(args...) _xstart(args, NULL)
 extern int _xstart(const char *cmd, ...);
 extern void run_custom_script(char *name, char *args);

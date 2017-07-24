@@ -2842,7 +2842,7 @@ tor/Makefile:
 					--disable-asciidoc --disable-unittests \
 					--disable-tool-name-check)
 
-tor-install: tor
+tor-install:
 	install -D tor/src/or/tor $(INSTALLDIR)/tor/usr/sbin/Tor
 	$(STRIP) $(INSTALLDIR)/tor/usr/sbin/Tor
 
@@ -2856,7 +2856,9 @@ iproute2:
 
 iproute2-install: iproute2
 	install -D iproute2/tc/tc $(INSTALLDIR)/iproute2/usr/sbin/tc
+	install -D iproute2/tc/tc $(INSTALLDIR)/iproute2/usr/sbin/realtc
 	$(STRIP) $(INSTALLDIR)/iproute2/usr/sbin/tc
+	$(STRIP) $(INSTALLDIR)/iproute2/usr/sbin/realtc
 	install -D iproute2/ip/ip $(INSTALLDIR)/iproute2/usr/sbin/ip
 	$(STRIP) $(INSTALLDIR)/iproute2/usr/sbin/ip
 
@@ -2866,7 +2868,9 @@ iproute2-3.x: kernel_header iptables-1.4.x
 
 iproute2-3.x-install: iproute2-3.x
 	install -D iproute2-3.x/tc/tc $(INSTALLDIR)/iproute2-3.x/usr/sbin/tc
+	install -D iproute2-3.x/tc/tc $(INSTALLDIR)/iproute2-3.x/usr/sbin/realtc
 	$(STRIP) $(INSTALLDIR)/iproute2-3.x/usr/sbin/tc
+	$(STRIP) $(INSTALLDIR)/iproute2-3.x/usr/sbin/realtc
 	install -D iproute2-3.x/ip/ip $(INSTALLDIR)/iproute2-3.x/usr/sbin/ip
 	$(STRIP) $(INSTALLDIR)/iproute2-3.x/usr/sbin/ip
 	@if [ -e iproute2-3.x/tc/m_xt.so ] ; then \
@@ -4222,7 +4226,7 @@ netatalk-3.0.5: netatalk-3.0.5/stamp-h1
 	@touch netatalk-3.0.5/configure
 	@$(MAKE) -C netatalk-3.0.5 $(PARALLEL_BUILD)
 
-netatalk-3.0.5-install: netatalk-3.0.5
+netatalk-3.0.5-install:
 	install -D netatalk-3.0.5/etc/afpd/.libs/afpd $(INSTALLDIR)/netatalk-3.0.5/usr/sbin/afpd
 	install -D netatalk-3.0.5/etc/cnid_dbd/.libs/cnid_dbd $(INSTALLDIR)/netatalk-3.0.5/usr/sbin/cnid_dbd
 	install -D netatalk-3.0.5/etc/cnid_dbd/.libs/cnid_metad $(INSTALLDIR)/netatalk-3.0.5/usr/sbin/cnid_metad
@@ -4297,7 +4301,7 @@ avahi-0.6.31-configure:
 		LIBDAEMON_CFLAGS="-I$(TOP)/libdaemon" --disable-autoipd --with-xml=expat --disable-stack-protector --with-avahi-user="admin" --with-avahi-group="root" \
 	)
 
-avahi-0.6.31-install: avahi-0.6.31
+avahi-0.6.31-install:
 	install -D avahi-0.6.31/avahi-daemon/.libs/avahi-daemon $(INSTALLDIR)/avahi-0.6.31/usr/sbin/avahi-daemon
 	install -D avahi-0.6.31/avahi-common/.libs/libavahi-common.so.3.5.3 $(INSTALLDIR)/avahi-0.6.31/usr/lib/libavahi-common.so.3.5.3
 	install -D avahi-0.6.31/avahi-core/.libs/libavahi-core.so.7.0.2 $(INSTALLDIR)/avahi-0.6.31/usr/lib/libavahi-core.so.7.0.2

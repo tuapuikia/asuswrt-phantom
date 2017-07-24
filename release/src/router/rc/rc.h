@@ -679,6 +679,8 @@ extern void update_wan_state(char *prefix, int state, int reason);
 extern int update_resolvconf(void);
 
 /* qos.c */
+extern void set_codel_patch(void);
+extern void remove_codel_patch(void);
 extern int start_iQos(void);
 extern void stop_iQos(void);
 extern void del_iQosRules(void);
@@ -1040,9 +1042,6 @@ extern void write_static_leases(char *file);
 #ifdef RTCONFIG_DHCP_OVERRIDE
 extern int restart_dnsmasq(int need_link_DownUp);
 #endif
-#ifdef RTCONFIG_DNSFILTER
-extern int get_dns_filter(int proto, int mode, char **server);
-#endif
 extern void start_dnsmasq(void);
 extern void stop_dnsmasq(void);
 extern void reload_dnsmasq(void);
@@ -1093,6 +1092,13 @@ void restart_cstats(void);
 void stop_cstats(void);
 extern void setup_leds();
 int ddns_custom_updated_main(int argc, char *argv[]);
+
+// dnsfilter.c
+#ifdef RTCONFIG_DNSFILTER
+extern void dnsfilter_settings(FILE *fp, char *lan_ip);
+extern void dnsfilter6_settings(FILE *fp, char *lan_if, char *lan_ip);
+extern void dnsfilter_setup_dnsmasq(FILE *fp);
+#endif
 
 // lan.c
 #ifdef RTCONFIG_TIMEMACHINE
